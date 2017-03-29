@@ -88,7 +88,14 @@ func (self *ProtoFixedHead) read() error{
 		//count += n
 		//logger.Debug("接收到数据长度:", n)
 		//fmt.Println("接收到时数据len：", n)
-		self.splitPackage(readbuf)
+		err = self.splitPackage(readbuf)
+		if err != nil{
+			if !self.session.isClosed {
+				self.session.Close()
+				self.session.onError(err)
+			}
+			return err
+		}
 	}
 }
 
@@ -101,6 +108,11 @@ func (self *ProtoFixedHead) splitPackage(readbuf []byte) (err error){
 			break
 		}
 		packlen := binary.BigEndian.Uint32(readbuf[self.dl + PFH_HEAD_PACKETLEN_POS:])
+		if packlen > BYTE_MAX_BUF{
+			err = TOO_LAGER
+			break
+		}
+
 		//计算出 完整包的结束游标
 		completelen := self.dl + PFH_HEAD_LEN + uint32(packlen)
 		if self.rl < completelen {
