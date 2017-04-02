@@ -174,8 +174,9 @@ func (self *HeartTimeWheel) check() {
 }
 func (self *HeartTimeWheel) handleHeartTimeout(sessions map[string]*Session){
 	fmt.Println("超时session :",sessions)
-	for _,val:=range sessions{
-		val.Close()
+	for _,session:=range sessions{
+		session.Close()
+		session.onClose()
 	}
 }
 const HEART_WHEEL_POS = "HEART_WHEEL_POS"
