@@ -39,11 +39,10 @@ func (self *ProtoJson) read() error{
 				//fmt.Println(clientAddr, "连接异常!", err)
 				//关闭并释放资源，否则服务器会有CLOSE_WAIT出现，客户端会员 FIN_WAIT2
 				self.session.Close()
-				if err.Error() == "EOF" {
-					self.session.onClose()
-				} else {
+				if err.Error() != "EOF" {
 					self.session.onError(err)
 				}
+				self.session.onClose()
 			}
 			return err
 		}
@@ -87,6 +86,7 @@ func (self *ProtoJson) splitPackage(buf []byte)(err error){
 		if int64(self.buf.Len()) > JSON_MAX_BUF {
 			self.session.Close()
 			self.session.onError(TOO_LAGER)
+			self.session.onClose()
 		}
 		//fmt.Println("半截包内容:", string(client.Allbuf.Bytes()))
 	}

@@ -71,17 +71,17 @@ func (self *ProtoByte) read() error{
 		if err := self.checkReadBuffer(); err != nil {
 			self.session.Close()
 			self.session.onError(err)
+			self.session.onClose()
 			return err
 		}
 		n, err := conn.Read(readbuf[self.rl:])
 		if err != nil {
 			if !self.session.isClosed {
 				self.session.Close()
-				if err.Error() == "EOF" {
-					self.session.onClose()
-				} else {
+				if err.Error() != "EOF" {
 					self.session.onError(err)
 				}
+				self.session.onClose()
 			}
 			return err
 		}

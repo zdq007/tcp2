@@ -173,8 +173,8 @@ func (self *HeartTimeWheel) check() {
 	}
 }
 func (self *HeartTimeWheel) handleHeartTimeout(sessions map[string]*Session){
-	fmt.Println("超时session :",sessions)
 	for _,session:=range sessions{
+		fmt.Println("客户端心跳超时：",session.Get("termCode"))
 		session.Close()
 		session.onClose()
 	}
